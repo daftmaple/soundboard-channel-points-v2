@@ -8,8 +8,9 @@ import Session from 'express-session';
 import appendQuery from 'append-query';
 import socketio from 'socket.io';
 
+import { events } from './events';
 import { Exchange, getAccessToken, validateUser } from './twitchapi';
-import { Token } from './pubsub';
+import { Redemption, Token } from './pubsub';
 
 dotenv.config();
 
@@ -23,6 +24,10 @@ const scopes: string[] = [
   // 'channel:moderate',
   // 'whispers:read',
 ];
+
+// Setup Express and SocketIO
+app.use(express.static('public', { extensions: ['html'] }));
+app.use('/sound', express.static('sound-effects'));
 
 const httpServer = http.createServer(app);
 const io = new socketio.Server(httpServer);
@@ -52,6 +57,7 @@ if (!username) {
   process.exit(1);
 }
 
+// Handlers
 const redirectUri = baseUrl + '/oauth2/twitch';
 
 app.use(express.static('www', { extensions: ['html'] }));
@@ -74,6 +80,47 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
+
+  socket.on('skip', () => io.emit('skip'));
+});
+
+const soundConfig = JSON.parse(
+  fs.readFileSync(
+    path.join(process.cwd(), '.config', 'sound-config.json'),
+    'utf-8'
+  )
+);
+
+type SoundConfig = {
+  name: string;
+  aliases: string;
+  file: string;
+  volume: number;
+};
+
+// events.on('sfx', (...args: unknown[]) => io.emit('sfx', ...args));
+// events.on('tts', (...args: unknown[]) => io.emit('tts', ...args));
+events.on('twitchEvent', (redemption: Redemption) => {
+  const sfxPrefix: string = soundConfig.redeemable.sfx.prefix || '';
+  const ttsName: string = soundConfig.redeemable.tts.name;
+
+  if (redemption.name === ttsName) {
+    io.emit('tts', {
+      text: redemption.message,
+      volume: soundConfig.redeemable.tts.volume,
+    });
+  }
+
+  const sounds: SoundConfig[] = soundConfig.sounds;
+  for (const sound of sounds) {
+    const name = `${sfxPrefix}${sound.name}`;
+    if (redemption.name === name) {
+      io.emit('sfx', {
+        file: sound.file,
+        volume: sound.volume,
+      });
+    }
+  }
 });
 
 // Use request sessionID as state
