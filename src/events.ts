@@ -1,7 +1,6 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 
 // Setup EventEmitter
 const events = new EventEmitter();
-events.setMaxListeners(0);
 
 export { events };
