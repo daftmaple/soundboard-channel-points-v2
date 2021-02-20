@@ -45,3 +45,4 @@ docker-compose -f docker-compose.yaml up --detach
 ```
 
 7. Your app will be available in http://localhost:9000
+
