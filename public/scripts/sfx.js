@@ -121,7 +121,7 @@ async function addToQueue({ location, volume, sound }) {
 }
 
 socket.on('tts', async ({ text, volume = 0.75 }) => {
-  const qs = new URLSearchParams({ voice, text });
+  const qs = new URLSearchParams({ text });
   addToQueue({
     location: await loadSoundNoCache(`${ttsBase}?${qs}`),
     volume: volume,

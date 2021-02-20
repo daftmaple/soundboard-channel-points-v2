@@ -7,6 +7,7 @@ import express from 'express';
 import Session from 'express-session';
 import appendQuery from 'append-query';
 import socketio from 'socket.io';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { events } from './events';
 import { Exchange, getAccessToken, validateUser } from './twitchapi';
@@ -60,7 +61,6 @@ if (!username) {
 // Handlers
 const redirectUri = baseUrl + '/oauth2/twitch';
 
-app.use(express.static('www', { extensions: ['html'] }));
 app.use(
   Session({
     cookie: {
@@ -98,13 +98,15 @@ type SoundConfig = {
   volume: number;
 };
 
-// events.on('sfx', (...args: unknown[]) => io.emit('sfx', ...args));
-// events.on('tts', (...args: unknown[]) => io.emit('tts', ...args));
 events.on('twitchEvent', (redemption: Redemption) => {
   const sfxPrefix: string = soundConfig.redeemable.sfx.prefix || '';
   const ttsName: string = soundConfig.redeemable.tts.name;
 
-  if (redemption.name === ttsName) {
+  if (
+    redemption.name === ttsName &&
+    redemption.message &&
+    redemption.message.length > 0
+  ) {
     io.emit('tts', {
       text: redemption.message,
       volume: soundConfig.redeemable.tts.volume,
@@ -194,5 +196,15 @@ app.get('/oauth2/twitch', async (req, res) => {
     }
   }
 });
+
+if (process.env.TTS_URL) {
+  // Act as proxy to the TTS engine
+  const ttsProxy = createProxyMiddleware({
+    target: process.env.TTS_URL,
+    changeOrigin: true,
+  });
+
+  app.use('/api/tts', ttsProxy);
+}
 
 export const server = httpServer;
