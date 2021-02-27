@@ -1,5 +1,5 @@
 import * as T from 'io-ts';
-import { isRight } from 'fp-ts/lib/Either';
+import * as Either from 'fp-ts/lib/Either';
 
 const soundConfigurationType = T.type({
   sounds: T.array(
@@ -24,5 +24,17 @@ const soundConfigurationType = T.type({
 type SoundConfiguration = T.TypeOf<typeof soundConfigurationType>;
 
 export function isValidSoundConfiguration(v: unknown): v is SoundConfiguration {
-  return isRight(soundConfigurationType.decode(v));
+  return Either.isRight(soundConfigurationType.decode(v));
+}
+
+const tokenType = T.type({
+  accessToken: T.string,
+  refreshToken: T.string,
+  expiryTimestamp: T.union([T.number, T.null]),
+});
+
+export type Token = T.TypeOf<typeof tokenType>;
+
+export function isToken(v: unknown): v is Token {
+  return Either.isRight(tokenType.decode(v));
 }
