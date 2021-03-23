@@ -1,11 +1,10 @@
 import { RequestHandler } from 'express';
-import { isRedemption } from './validation';
 
 /**
  * Filter middleware that acts as a filter to filter messages
  */
 function filterMiddleware(filterArray: string[]): RequestHandler {
-  return (req, res, next) => {
+  return (req, res, next): void => {
     let filtered: boolean = false;
 
     const message = req.query.text;

@@ -114,7 +114,7 @@ async function pubSub(): Promise<void> {
         clientSecret,
         refreshToken: token.refreshToken,
         expiry: token.expiryTimestamp ? new Date(token.expiryTimestamp) : null,
-        onRefresh: (token) => {
+        onRefresh: (token): void => {
           const storedToken: Token = {
             accessToken: token.accessToken,
             refreshToken: token.refreshToken,
@@ -159,7 +159,7 @@ async function pubSub(): Promise<void> {
       }
     );
 
-    const onDisconnectListener = async (isError: boolean) => {
+    const onDisconnectListener = async (isError: boolean): Promise<void> => {
       handler.remove();
       if (isError) {
         console.log(

@@ -117,7 +117,7 @@ try {
   console.log('No filter file');
 }
 
-function redemptionHandler(redemption: Redemption) {
+function redemptionHandler(redemption: Redemption): void {
   const sfxPrefix: string = soundConfig.redeemable.sfx.prefix || '';
   const ttsName: string = soundConfig.redeemable.tts.name;
 
