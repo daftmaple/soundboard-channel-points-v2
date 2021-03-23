@@ -1,9 +1,10 @@
 import { RequestHandler } from 'express';
+import { isRedemption } from './validation';
 
 /**
- * RequestHandler that acts as a filter to filter messages
+ * Filter middleware that acts as a filter to filter messages
  */
-function filterHandler(filterArray: string[]): RequestHandler {
+function filterMiddleware(filterArray: string[]): RequestHandler {
   return (req, res, next) => {
     let filtered: boolean = false;
 
@@ -51,4 +52,4 @@ function filterHandler(filterArray: string[]): RequestHandler {
   };
 }
 
-export { filterHandler };
+export { filterMiddleware };

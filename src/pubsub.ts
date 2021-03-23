@@ -14,7 +14,7 @@ import {
 } from 'twitch-pubsub-client';
 
 import { events } from './events';
-import { Token, isToken } from './validation';
+import { Token, isToken, Redemption } from './validation';
 
 /**
  * Delay execution of the next line with the provided time. Must be awaited
@@ -25,12 +25,6 @@ function sleep(sec: number): Promise<void> {
     setTimeout(resolve, sec * 1000);
   });
 }
-
-type Redemption = {
-  name: string;
-  username: string;
-  message?: string;
-};
 
 /**
  * Validate if the token file exists with the correct key-value type (does not need to be a valid token)
@@ -194,4 +188,4 @@ async function pubSub(): Promise<void> {
   }
 }
 
-export { Redemption, Token, tokenValidation, pubSub };
+export { Token, tokenValidation, pubSub };
